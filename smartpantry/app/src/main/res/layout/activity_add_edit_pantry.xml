@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Screen Title -->
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Pantry Item"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Ingredient Name Input -->
+    <TextView
+        android:id="@+id/labelItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Ingredient Name *"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textTitle" />
+
+    <EditText
+        android:id="@+id/etItemName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="e.g. Flour, Milk, Eggs"
+        android:inputType="textCapWords"
+        android:minHeight="48dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelItemName" />
+
+    <!-- Quantity Input -->
+    <TextView
+        android:id="@+id/labelQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Quantity *"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etItemName" />
+
+    <EditText
+        android:id="@+id/etQuantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="e.g. 500"
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        app:layout_constraintEnd_toStartOf="@id/spinnerUnit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelQuantity"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Unit Spinner -->
+    <TextView
+        android:id="@+id/labelUnit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unit *"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/spinnerUnit"
+        app:layout_constraintTop_toTopOf="@id/labelQuantity" />
+
+    <Spinner
+        android:id="@+id/spinnerUnit"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelUnit" />
+
+    <!-- Optional Expiry Date Input -->
+    <TextView
+        android:id="@+id/labelExpiryDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Expiry Date (Optional)"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etQuantity" />
+
+    <LinearLayout
+        android:id="@+id/layoutExpiry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelExpiryDate">
+
+        <EditText
+            android:id="@+id/etExpiryDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="YYYY-MM-DD"
+            android:inputType="none"
+            android:minHeight="48dp" />
+
+        <Button
+            android:id="@+id/btnSelectDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Select Date" />
+    </LinearLayout>
+
+    <!-- Save & Cancel Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/layoutExpiry">
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="Save Item" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
