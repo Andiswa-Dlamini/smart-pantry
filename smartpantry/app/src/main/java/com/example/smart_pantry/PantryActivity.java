@@ -7,9 +7,13 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 
 public class PantryActivity extends AppCompatActivity {
@@ -23,12 +27,14 @@ public class PantryActivity extends AppCompatActivity {
         public void onClick(View view) {
             RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
             int position = viewHolder.getAdapterPosition();
-            int pantryId = pantryList.get(position).getPantryId();
+            if (position != RecyclerView.NO_POSITION && position < pantryList.size()) {
+                int pantryId = pantryList.get(position).getPantryId();
 
-            // Pass selected pantry item ID to Add/Edit activity via Intent Extra
-            Intent intent = new Intent(PantryActivity.this, AddEditPantryActivity.class);
-            intent.putExtra("pantryID", pantryId);
-            startActivity(intent);
+                // Pass selected pantry item ID to Add/Edit activity via Intent Extra
+                Intent intent = new Intent(PantryActivity.this, AddEditPantryActivity.class);
+                intent.putExtra("pantryID", pantryId);
+                startActivity(intent);
+            }
         }
     };
 
@@ -63,9 +69,31 @@ public class PantryActivity extends AppCompatActivity {
             pantryAdapter.setOnItemClickListener(onItemClickListener);
             recyclerViewPantry.setAdapter(pantryAdapter);
 
+            initSwipeToDelete();
+
         } catch (Exception e) {
             Toast.makeText(this, "Error retrieving pantry items", Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void initSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                if (pantryAdapter != null) {
+                    pantryAdapter.confirmAndDeleteItem(position);
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerViewPantry);
     }
 
     private void initAddIngredientButton() {

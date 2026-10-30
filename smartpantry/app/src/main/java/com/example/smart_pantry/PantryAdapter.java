@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
@@ -100,7 +101,7 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.PantryView
             holder.getButtonDelete().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    deleteItem(position);
+                    confirmAndDeleteItem(position);
                 }
             });
         } else {
@@ -144,7 +145,26 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.PantryView
         }
     }
 
+    public void confirmAndDeleteItem(final int position) {
+        if (position < 0 || position >= pantryData.size()) {
+            return;
+        }
+
+        PantryItem pantryItem = pantryData.get(position);
+
+        new AlertDialog.Builder(parentContext)
+                .setTitle("Delete Ingredient")
+                .setMessage("Are you sure you want to delete \"" + pantryItem.getItemName() + "\"?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteItem(position))
+                .setNegativeButton("Cancel", (dialog, which) -> notifyItemChanged(position))
+                .setOnCancelListener(dialog -> notifyItemChanged(position))
+                .show();
+    }
+
     private void deleteItem(int position) {
+        if (position < 0 || position >= pantryData.size()) {
+            return;
+        }
         PantryItem pantryItem = pantryData.get(position);
         PantryDataSource ds = new PantryDataSource(parentContext);
         try {
