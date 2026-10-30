@@ -212,6 +212,50 @@ public class RecipeMatcher {
     }
 
     /**
+     * Calculates and returns the list of missing or understocked ingredients for a given recipe
+     * compared against current pantry inventory.
+     */
+    public static ArrayList<RecipeIngredient> getMissingIngredientsForRecipe(Recipe recipe, ArrayList<PantryItem> pantryItems) {
+        ArrayList<RecipeIngredient> missingIngredients = new ArrayList<>();
+        if (recipe == null || recipe.getIngredients() == null) {
+            return missingIngredients;
+        }
+
+        Map<String, Map<String, Double>> pantryMap = buildPantryMap(pantryItems);
+
+        for (RecipeIngredient reqIngredient : recipe.getIngredients()) {
+            if (reqIngredient == null || reqIngredient.getIngredientName() == null) {
+                continue;
+            }
+
+            String normReqName = normalizeName(reqIngredient.getIngredientName());
+            NormalizedQuantity reqNormQty = convertToBaseUnit(reqIngredient.getRequiredQuantity(), reqIngredient.getUnit());
+
+            Map<String, Double> categoryMap = pantryMap.get(normReqName);
+            double availableBaseAmount = 0.0;
+            if (categoryMap != null && categoryMap.containsKey(reqNormQty.baseCategory)) {
+                availableBaseAmount = categoryMap.get(reqNormQty.baseCategory);
+            }
+
+            if (availableBaseAmount < reqNormQty.baseAmount) {
+                double missingBaseAmount = reqNormQty.baseAmount - availableBaseAmount;
+
+                RecipeIngredient missingIng = new RecipeIngredient();
+                missingIng.setIngredientName(reqIngredient.getIngredientName());
+                missingIng.setUnit(reqIngredient.getUnit());
+
+                double missingRatio = missingBaseAmount / reqNormQty.baseAmount;
+                double missingDisplayQty = Math.round((reqIngredient.getRequiredQuantity() * missingRatio) * 100.0) / 100.0;
+
+                missingIng.setRequiredQuantity(missingDisplayQty > 0 ? missingDisplayQty : reqIngredient.getRequiredQuantity());
+                missingIngredients.add(missingIng);
+            }
+        }
+
+        return missingIngredients;
+    }
+
+    /**
      * Checks if a specific required recipe ingredient is satisfied by the pantry stock.
      */
     private static boolean isIngredientSatisfied(RecipeIngredient reqIngredient, Map<String, Map<String, Double>> pantryMap) {
