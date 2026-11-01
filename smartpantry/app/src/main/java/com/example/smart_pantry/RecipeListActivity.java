@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ public class RecipeListActivity extends AppCompatActivity {
     private TextView textEmptyRecipes;
     private TextView labelAlmostThere;
     private ChipGroup chipGroupCategory;
+    private SearchView searchViewRecipes;
 
     private ArrayList<Recipe> allStrictRecipes;
     private ArrayList<Recipe> allAlmostRecipes;
@@ -33,6 +35,7 @@ public class RecipeListActivity extends AppCompatActivity {
     private RecipeAdapter strictAdapter;
     private RecipeAdapter almostAdapter;
     private String selectedCategory = "All";
+    private String searchQuery = "";
 
     // Item click listener for strict matches
     private View.OnClickListener onStrictItemClickListener = new View.OnClickListener() {
@@ -73,6 +76,7 @@ public class RecipeListActivity extends AppCompatActivity {
 
         initViews();
         setupCategoryChips();
+        setupSearchView();
     }
 
     @Override
@@ -87,6 +91,7 @@ public class RecipeListActivity extends AppCompatActivity {
         textEmptyRecipes = findViewById(R.id.textEmptyRecipes);
         labelAlmostThere = findViewById(R.id.labelAlmostThere);
         chipGroupCategory = findViewById(R.id.chipGroupCategory);
+        searchViewRecipes = findViewById(R.id.searchViewRecipes);
 
         rvStrictRecipes.setLayoutManager(new LinearLayoutManager(this));
         rvAlmostRecipes.setLayoutManager(new LinearLayoutManager(this));
@@ -99,8 +104,26 @@ public class RecipeListActivity extends AppCompatActivity {
                 Chip selectedChip = findViewById(checkedId);
                 if (selectedChip != null) {
                     selectedCategory = selectedChip.getText().toString();
-                    applyCategoryFilter();
+                    applyCategoryAndSearchFilters();
                 }
+            }
+        });
+    }
+
+    private void setupSearchView() {
+        searchViewRecipes.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchQuery = (query == null) ? "" : query.trim().toLowerCase();
+                applyCategoryAndSearchFilters();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                searchQuery = (newText == null) ? "" : newText.trim().toLowerCase();
+                applyCategoryAndSearchFilters();
+                return true;
             }
         });
     }
@@ -118,21 +141,46 @@ public class RecipeListActivity extends AppCompatActivity {
             // Use EXISTING RecipeMatcher "Almost There" logic
             allAlmostRecipes = RecipeMatcher.getAlmostMatchingRecipes(allRecipes, pantryItems);
 
-            applyCategoryFilter();
+            applyCategoryAndSearchFilters();
 
         } catch (Exception e) {
             Toast.makeText(this, "Error matching recipes", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void applyCategoryFilter() {
+    private boolean matchesSearchQuery(Recipe recipe, String query) {
+        if (query == null || query.isEmpty()) {
+            return true;
+        }
+
+        // Match recipe name
+        if (recipe.getRecipeName() != null && recipe.getRecipeName().toLowerCase().contains(query)) {
+            return true;
+        }
+
+        // Match any ingredient name in the recipe
+        if (recipe.getIngredients() != null) {
+            for (RecipeIngredient ing : recipe.getIngredients()) {
+                if (ing.getIngredientName() != null && ing.getIngredientName().toLowerCase().contains(query)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void applyCategoryAndSearchFilters() {
         filteredStrictList = new ArrayList<>();
         filteredAlmostList = new ArrayList<>();
 
         if (allStrictRecipes != null) {
             for (Recipe r : allStrictRecipes) {
-                if ("All".equalsIgnoreCase(selectedCategory) ||
-                    (r.getCategory() != null && r.getCategory().equalsIgnoreCase(selectedCategory))) {
+                boolean categoryMatches = "All".equalsIgnoreCase(selectedCategory) ||
+                        (r.getCategory() != null && r.getCategory().equalsIgnoreCase(selectedCategory));
+                boolean searchMatches = matchesSearchQuery(r, searchQuery);
+
+                if (categoryMatches && searchMatches) {
                     filteredStrictList.add(r);
                 }
             }
@@ -140,8 +188,11 @@ public class RecipeListActivity extends AppCompatActivity {
 
         if (allAlmostRecipes != null) {
             for (Recipe r : allAlmostRecipes) {
-                if ("All".equalsIgnoreCase(selectedCategory) ||
-                    (r.getCategory() != null && r.getCategory().equalsIgnoreCase(selectedCategory))) {
+                boolean categoryMatches = "All".equalsIgnoreCase(selectedCategory) ||
+                        (r.getCategory() != null && r.getCategory().equalsIgnoreCase(selectedCategory));
+                boolean searchMatches = matchesSearchQuery(r, searchQuery);
+
+                if (categoryMatches && searchMatches) {
                     filteredAlmostList.add(r);
                 }
             }
