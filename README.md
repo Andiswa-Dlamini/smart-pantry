@@ -133,3 +133,7 @@ Core components include:
 **Repository:** [Smart Pantry Manager](https://github.com/Andiswa-Dlamini/smart-pantry)
 
 **Portfolio:** [Andiswa Dlamini](https://andiswadlamini.netlify.app/)
+
+## License
+
+This project is licensed under the MIT License.
